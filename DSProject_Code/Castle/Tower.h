@@ -3,6 +3,14 @@
 class Tower
 {
 	double Health;
+	double Power;
+	int MaxEnemies;
+	int FrozenTimeLeft;
+	double IceAccumulated;
+	double FreezeThreshold;
+	int IceFires;
+	int TotalFires;
+	double TotalDamage;
 
 	//
 	// TODO: Add More Data Members As Needed

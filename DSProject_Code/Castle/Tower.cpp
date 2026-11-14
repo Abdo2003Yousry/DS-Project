@@ -4,6 +4,16 @@
 Tower::Tower()
 {
 	SetHealth(TowerInitHealth);
+	
+	Power = 0;
+	MaxEnemies = 0;
+	FrozenTimeLeft = 0;
+	IceAccumulated = 0;
+	FreezeThreshold = 0;
+	IceFires = 0;
+	TotalFires = 0;
+	TotalDamage = 0;
+
 }
 
 
