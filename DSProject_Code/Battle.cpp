@@ -1,5 +1,7 @@
 #include "Battle.h"
-
+#include "D:\ITI\DS\DS project\DSProject_Code\DSProject_Code\Enemies\Fighter.h"
+#include "D:\ITI\DS\DS project\DSProject_Code\DSProject_Code\Enemies\Healer.h"
+#include "D:\ITI\DS\DS project\DSProject_Code\DSProject_Code\Enemies\Freezer.h"
 #include <iostream>
 
 Battle::Battle()
@@ -60,31 +62,36 @@ void Battle::Just_A_Demo()
 	// In the game, enemies should be loaded from an input file
 	// and should be dynamically allocated
 	
-	Enemy e1(DARKBLUE, A_REG, 6);
-	Enemy e2(DARKBLUE, D_REG, 60);
-	Enemy e3(DARKOLIVEGREEN, B_REG, 60); 
-	Enemy e4(DARKOLIVEGREEN, A_REG, 4);
-	Enemy e5(ORANGERED, C_REG, 19); 
-	Enemy e6(ORANGERED, C_REG, 30); 
-	Enemy e7(ORANGERED, A_REG, 2);
-	Enemy e8(DARKOLIVEGREEN, C_REG, 7); 
-	Enemy e9(ORANGERED, A_REG, 30); 
-	Enemy e10(DARKBLUE, C_REG, 4);
-	Enemy e11(GREEN, A_REG, 20);
+	//Enemy e1(DARKBLUE, A_REG, 6);
+	//Enemy e2(DARKBLUE, D_REG, 60);
+	//Enemy e3(DARKOLIVEGREEN, B_REG, 60); 
+	//Enemy e4(DARKOLIVEGREEN, A_REG, 4);
+	//Enemy e5(ORANGERED, C_REG, 19); 
+	//Enemy e6(ORANGERED, C_REG, 30); 
+	//Enemy e7(ORANGERED, A_REG, 2);
+	//Enemy e8(DARKOLIVEGREEN, C_REG, 7); 
+	//Enemy e9(ORANGERED, A_REG, 30); 
+	//Enemy e10(DARKBLUE, C_REG, 4);
+	//Enemy e11(GREEN, A_REG, 20);
 	
 
 	// Adding the enemies to the battle
-	AddEnemy(&e1);
-	AddEnemy(&e2);
-	AddEnemy(&e3);
-	AddEnemy(&e4);
-	AddEnemy(&e5);
-	AddEnemy(&e6);
-	AddEnemy(&e7);
-	AddEnemy(&e8);
-	AddEnemy(&e9);
-	AddEnemy(&e10);
-	AddEnemy(&e11);
+	Fighter e1(DARKBLUE, A_REG, 6);
+	Fighter e2(DARKBLUE, D_REG, 60);
+
+	Healer e3(DARKOLIVEGREEN, B_REG, 60);
+	Healer e4(DARKOLIVEGREEN, A_REG, 4);
+
+	Freezer e5(ORANGERED, C_REG, 19);
+	Freezer e6(ORANGERED, C_REG, 30);
+	Freezer e7(ORANGERED, A_REG, 2);
+
+	Healer e8(DARKOLIVEGREEN, C_REG, 7);
+
+	Freezer e9(ORANGERED, A_REG, 30);
+
+	Fighter e10(DARKBLUE, C_REG, 4);
+	//AddEnemy(&e11);
 
 	// Drawing the battle
 	pGUI->DrawBattle(BEnemiesForDraw, EnemyCount);

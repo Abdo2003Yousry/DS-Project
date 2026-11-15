@@ -25,6 +25,22 @@ protected:
 	//
 	// TODO: Add More Data Members As Needed
 	//
+	enemyState enemyState; // state of enemy
+	int enemyArivalTime;
+	int enemyMovementSteps;
+	int enemyReloadTime;
+	double enemyOriginalHealth;
+	int enemyPower; // ??
+	int enemyLastActionTime;
+	int enemyFirstShotTime;
+	int enemyKilledTime;
+	enemyType enemyType;
+	
+
+
+
+
+
 
 public:
 	Enemy(color r_c, REGION r_region, int d = MaxDistance);
@@ -38,10 +54,11 @@ public:
 	void SetDistance(int d);
 	int GetDistance() const;
 
+
 	// Virtual Functions: ----------------
 
-	//virtual void Move() = 0;	//All enemies can move
-	//virtual void Act() = 0;	//Acting means fighting or healing
+	virtual void Move() = 0;	//All enemies can move
+	virtual void Act() = 0;	//Acting means fighting or healing
 
 	//
 	// TODO: Add More Member Functions As Needed
