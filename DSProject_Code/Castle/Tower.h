@@ -22,9 +22,15 @@ public:
 	void SetHealth(double h);
 	double GetHealth() const;
 
-	//
-	// TODO: Add More Member Functions As Needed
-	//
+
+	// set max enemies per time step
+	void SetMaxEnemies(int n);
+
+	// get total damage
+	double GetTotalDamage() const;
+
+	// check if tower is destroyed
+	bool IsDestroyed() const;
 
 };
 
