@@ -8,6 +8,7 @@ void Freezer::Move()
 {
 }
 
-void Freezer::Act()
+void Freezer::Act(Tower* tower, Enemy* enemies[],
+    int count, int currentTime)
 {
 }
