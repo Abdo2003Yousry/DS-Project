@@ -10,6 +10,7 @@ void Healer::Move()
 {
 }
 
-void Healer::Act()
+void Healer::Act(Tower* tower, Enemy* enemies[],
+    int count, int currentTime)
 {
 }
