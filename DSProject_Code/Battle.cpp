@@ -91,7 +91,16 @@ void Battle::Just_A_Demo()
 	Freezer e9(ORANGERED, A_REG, 30);
 
 	Fighter e10(DARKBLUE, C_REG, 4);
-	//AddEnemy(&e11);
+	AddEnemy(&e1);
+	AddEnemy(&e2);
+	AddEnemy(&e3);
+	AddEnemy(&e4);
+	AddEnemy(&e5);
+	AddEnemy(&e6);
+	AddEnemy(&e7);
+	AddEnemy(&e8);
+	AddEnemy(&e9);
+	AddEnemy(&e10);
 
 	// Drawing the battle
 	pGUI->DrawBattle(BEnemiesForDraw, EnemyCount);
