@@ -19,8 +19,8 @@ public:
 	Castle();
 	void SetTowerHealth(REGION TowerRegion, double h);
 
-	// set TH, N, TP for all towers
-	void SetTowersData(double TH, int N, double TP);
+	// set  N, TP for all towers
+	void SetTowersData( int N, double TP);
 
 	// get the tower of this region
 	Tower* GetTower(REGION r);
@@ -33,7 +33,7 @@ public:
 
 	// check if all towers are destroyed
 	bool AreAllTowersDestroyed();
-
+	
 	// get next region (A->B->C->D->A)
 	REGION GetNextRegion(REGION r);
 
