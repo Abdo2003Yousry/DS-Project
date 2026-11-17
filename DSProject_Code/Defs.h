@@ -17,7 +17,18 @@ enum REGION {
 	D_REG
 };
 
+enum enemyState {
+	Active,
+	Inactive,
+	Frozen,
+	Killed
+};
 
+enum enemyType {
+	Fighter_Type,
+	Healer_Type,
+	Freezer_Type
+};
 
 
 enum MenuItem
