@@ -1,11 +1,22 @@
 #include "Tower.h"
+#include "..\Enemies\Enemy.h"
+#include "..\DS\PriorityQueue.h" 
+#include <cstdlib>
+#include <cmath>
 
+//// Initialization ////
 
 Tower::Tower()
 {
 	SetHealth(TowerInitHealth);
 }
 
+void Tower::SetData(REGION reg, double towerHealth, int numberEnemies, double towerPower)
+{
+	
+}
+
+//// Getters & Setters ////
 
 void Tower::SetHealth(double h)
 {
@@ -18,4 +29,87 @@ void Tower::SetHealth(double h)
 double Tower::GetHealth() const
 {
 	return Health;
+}
+
+REGION Tower::GetRegion() const
+{
+	return Region;
+}
+
+double Tower::GetFirePower() const
+{
+	return FirePower;
+}
+
+int Tower::GetMaxTargets() const
+{
+	return MaxTargets;
+}
+
+double Tower::GetTotalDamage() const
+{
+	return TotalDamage;
+}
+
+bool Tower::IsDestroyed() const
+{
+	return Health <= 0;
+}
+
+bool Tower::IsFrozen() const
+{
+	return Frozen;
+}
+
+//// Attacks ////
+
+void Tower::ReceiveDamage(double d)
+{
+	 
+}
+
+void Tower::ReceiveIce(double ice)
+{
+	 
+}
+
+//// Freeze ////
+
+void Tower::UpdateFreezeState()
+{
+	 
+}
+
+//// Fire ////
+
+bool Tower::DecideFireType()
+{
+	
+}
+
+double Tower::CalcPriority(Enemy* e, int currentTime) const
+{
+	 
+}
+
+int Tower::SelectTargets(LinkedList<Enemy*>& active, Enemy* targets[], int currentTime)
+{
+	 
+}
+
+//// Attacking ////
+
+void Tower::Fire(LinkedList<Enemy*>& active, int currentTime)
+{
+	 
+}
+
+void Tower::FireBullet(Enemy* e, int currentTime)
+{
+	 
+}
+
+void Tower::FireIce(Enemy* e, int currentTime)
+{
+	 
 }
