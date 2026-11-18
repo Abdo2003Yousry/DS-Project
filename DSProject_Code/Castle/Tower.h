@@ -26,6 +26,11 @@ public:
     Tower();
     void SetData(REGION reg, double towerHealth, int numberEnemies, double towerPower);
 
+    //new
+    void SetRegion(REGION r);
+    void SetMaxTargets(int n);
+    void SetFirePower(double p);
+
     //// Getters & Setters ////
     void SetHealth(double h);
     double GetHealth() const;

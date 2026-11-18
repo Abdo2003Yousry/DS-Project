@@ -29,6 +29,23 @@ void Tower::SetData(REGION reg, double towerHealth, int numberEnemies, double to
     Power = towerPower;
 }
 
+//new
+void Tower::SetRegion(REGION r)
+{
+    Region = r;
+}
+
+
+void Tower::SetMaxTargets(int n)
+{
+    MaxEnemies = n;
+}
+
+void Tower::SetFirePower(double p)
+{
+    Power = p;
+}
+
 //// Getters & Setters ////
 
 void Tower::SetHealth(double h)
