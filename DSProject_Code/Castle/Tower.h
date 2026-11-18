@@ -6,6 +6,7 @@ class Tower
 {
 private:
 	REGION Region;			// region this tower protects
+	double TowerInitHealth  // initial health
 	double Health;			// current health
 	double FirePower;		// TP from input file
 	int	MaxTargets;			// Maximum number of enemies attacked per time step

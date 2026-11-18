@@ -9,12 +9,23 @@
 //Sets the tower to default values (zero) until the real data arrives
 Tower::Tower()
 {
+	REGION Region = A_REG;			// region this tower protects
+	double TowerInitHealth = 0;		// initial health
+	double Health = 0;				// current health
+	double FirePower = 0;			// TP from input file
+	int	MaxTargets = 0;				// Maximum number of enemies attacked per time step
+	bool Frozen = false;			// True while the tower is frozen
+	double IceAccumulated = 0;		// Ice thrown on the tower 
+	double IceThreshold = 0;		//Freeze when IceAccumulated reaches it
+	double TotalDamage = 0;			// From fighters 
+	int BulletShots = 0;			// Number of bullet fires
+	int IceShots = 0;				// Number of ice fires
 	SetHealth(TowerInitHealth);
 }
 
 //Receives the input file data (region, TH, N, TP) and stores it in the attributes. 
 //Called from Castle::SetTowersData
-void Tower::SetData(REGION reg, double towerHealth, int numberEnemies, double towerPower)
+void Tower::SetData(REGION region, double TH, int N, double TP)
 {
 	
 }
