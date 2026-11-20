@@ -8,9 +8,9 @@
 
 class Healer : public Enemy {
 public :
-	Healer(color r_c, REGION r_region, int d = MaxDistance);
-    // Movement
-    void Move() override;
+    Healer(color r_c, REGION r_region, int r_id,
+        int r_arrivalTime, double r_health, double r_power,
+        int r_reloadPeriod, int d = MaxDistance);
 
     // Heal nearby enemies
     void Act(Tower* tower, Enemy* enemies[],

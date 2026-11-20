@@ -1,14 +1,27 @@
 #include "Freezer.h"
 
-Freezer::Freezer(color r_c, REGION r_region, int d)
-    : Enemy(r_c, r_region, d)
-{
-}
-void Freezer::Move()
+Freezer::Freezer(color r_c, REGION r_region, int r_id,
+    int r_arrivalTime, double r_health, double r_power,
+    int r_reloadPeriod, int d)
+    : Enemy(r_c, r_region, r_id, r_arrivalTime,
+        r_health, r_power, r_reloadPeriod, Freezer_Type, d)
 {
 }
 
-void Freezer::Act(Tower* tower, Enemy* enemies[],
-    int count, int currentTime)
+void Freezer::Act(Tower* tower, Enemy* enemies[], int count, int currentTime)
 {
+    if (GetState() == Active && !IsFrozen(currentTime) && CanAct(currentTime))
+    {
+        double iceAmount = GetPower() / GetDistance();  // «·ﬂ„ÌÂ Â ⁄ „Ã ⁄·Ï „”«› Â „‰ «·»—Ã Êﬂ„«‰ ÂÊ ﬁÊ Â ﬂ«„ 
+
+        int freezeDuration = GetPower() / 5; //«Œ —  «·—ﬁ„ ⁄‘Ê«∆Ì ÊÂÃ—» ·„« ‰⁄„· ”„Ì·ÊÌ‘‰ Ê«‘Ê› «·„œÂ ﬂÊÌ”Â Ê·« ·«
+
+        if (freezeDuration < 1)
+            freezeDuration = 1;
+
+        // Send ice amount and freeze duration to tower
+       // tower->TakeIce(iceAmount, freezeDuration); wait to coorect name from somaya
+
+        UpdateNextActionTime(currentTime);
+    }
 }

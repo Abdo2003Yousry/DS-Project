@@ -8,9 +8,9 @@
 
 class Freezer : public Enemy {
 public:
-	Freezer(color r_c, REGION r_region, int d = MaxDistance);
-    // Movement
-    void Move() override;
+    Freezer(color r_c, REGION r_region, int r_id,
+        int r_arrivalTime, double r_health, double r_power,
+        int r_reloadPeriod, int d = MaxDistance);
 
     // Freeze the tower
     void Act(Tower* tower, Enemy* enemies[],
