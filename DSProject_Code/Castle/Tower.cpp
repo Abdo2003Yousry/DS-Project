@@ -251,7 +251,7 @@ void Tower::Fire(LinkedList<Enemy*>& active, int currentTime)
 void Tower::FireBullet(Enemy* e, int currentTime)
 {
     double K = 1;
-    if (e->GetType() == HEALER)
+    if (e->GetType() == Healer_Type)
     {
         K = 2;
     }
