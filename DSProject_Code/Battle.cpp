@@ -3,6 +3,7 @@
 #include "D:\ITI\DS\DS project\DSProject_Code\DSProject_Code\Enemies\Healer.h"
 #include "D:\ITI\DS\DS project\DSProject_Code\DSProject_Code\Enemies\Freezer.h"
 #include <iostream>
+#include <cstdlib>
 
 Battle::Battle()
 {
@@ -76,21 +77,21 @@ void Battle::Just_A_Demo()
 	
 
 	// Adding the enemies to the battle
-	Fighter e1(DARKBLUE, A_REG, 6);
-	Fighter e2(DARKBLUE, D_REG, 60);
+	Fighter e1(DARKBLUE, A_REG, 1, 1, 10, 2, 4, 6);
+	Fighter e2(DARKBLUE, D_REG, 2, 3, 15, 3, 4, 60);
 
-	Healer e3(DARKOLIVEGREEN, B_REG, 60);
-	Healer e4(DARKOLIVEGREEN, A_REG, 4);
+	Healer e3(DARKOLIVEGREEN, B_REG, 3, 2, 20, 5, 4, 60);
+	Healer e4(DARKOLIVEGREEN, A_REG, 4, 4, 15, 4, 3, 4);
 
-	Freezer e5(ORANGERED, C_REG, 19);
-	Freezer e6(ORANGERED, C_REG, 30);
-	Freezer e7(ORANGERED, A_REG, 2);
+	Freezer e5(ORANGERED, C_REG, 5, 5, 19, 3, 4, 19);
+	Freezer e6(ORANGERED, C_REG, 6, 6, 30, 4, 3, 30);
+	Freezer e7(ORANGERED, A_REG, 7, 7, 20, 2, 5, 2);
 
-	Healer e8(DARKOLIVEGREEN, C_REG, 7);
+	Healer e8(DARKOLIVEGREEN, C_REG, 8, 8, 25, 5, 4, 7);
 
-	Freezer e9(ORANGERED, A_REG, 30);
+	Freezer e9(ORANGERED, A_REG, 9, 9, 30, 3, 4, 30);
 
-	Fighter e10(DARKBLUE, C_REG, 4);
+	Fighter e10(DARKBLUE, C_REG, 10, 10, 40, 6, 3, 4);
 	AddEnemy(&e1);
 	AddEnemy(&e2);
 	AddEnemy(&e3);
