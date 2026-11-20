@@ -187,7 +187,9 @@ double Tower::CalcPriority(Enemy* e, int currentTime) const
     double distanceScore = 10.0 / e->GetDistance();
     double powerScore = e->GetPower();
     double typeScore = 2 * typeWeight;
-    double reloadPenalty = e->GetRemainingReload(currentTime);
+    double reloadPenalty = e->GetNextActionTime() - currentTime;
+    if (reloadPenalty < 0)
+        reloadPenalty = 0;
     double priority = distanceScore + powerScore + typeScore - reloadPenalty;
     return priority;
 }
@@ -198,18 +200,19 @@ int Tower::SelectTargets(LinkedList<Enemy*>& active, Enemy* targets[], int curre
 {
     PriorityQueue<Enemy*> pq;
 
-    Node<Enemy*>* current = active.GetHead();  
-    while (current != NULL)                    
+    Node<Enemy*>* current = active.getHead();
+
+    while (current != nullptr)
     {
-        Enemy* e = current->GetItem();        
-        double priority = CalcPriority(e, currentTime);  
-        pq.Enqueue(e, priority);              
-        current = current->GetNext();       
+        Enemy* e = current->getItem();
+        double priority = CalcPriority(e, currentTime);
+        pq.insert(e, priority);
+        current = current->getNext();
     }
 
     int count = 0;
     Enemy* target;
-    while (count < MaxEnemies && pq.Dequeue(target))
+    while (count < MaxEnemies && pq.extractMax(target))
     {
         targets[count] = target;
         count++;
@@ -258,8 +261,8 @@ void Tower::FireBullet(Enemy* e, int currentTime)
 
     double damage = (1.0 / e->GetDistance()) * Power * (1.0 / K);
 
-    e->SetFirstShot(currentTime); 
-    e->TakeDamage(damage);
+    e->SetFirstShotTime(currentTime);
+    e->TakeDamage(damage, currentTime);
     BulletShots++;
 }
 
@@ -276,7 +279,7 @@ void Tower::FireIce(Enemy* e, int currentTime)
         freezeSteps = 5;
     }
 
-    e->SetFirstShot(currentTime); 
-    e->Freeze(freezeSteps);
+    e->SetFirstShotTime(currentTime);
+    e->Freeze(freezeSteps, currentTime);
     IceShots++;
 }

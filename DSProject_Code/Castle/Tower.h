@@ -21,9 +21,9 @@ private:
 	int BulletShots;		// Number of bullet fires
 	int IceShots;			// Number of ice fires
 
-    bool DecideFireType();
+    /*bool DecideFireType();
     double CalcPriority(Enemy* e, int currentTime) const;
-    int SelectTargets(LinkedList<Enemy*>& active, Enemy* targets[], int currentTime);
+    int SelectTargets(LinkedList<Enemy*>& active, Enemy* targets[], int currentTime);*/
 
 public:
 
