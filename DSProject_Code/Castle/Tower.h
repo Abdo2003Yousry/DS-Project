@@ -10,7 +10,7 @@ class Tower
 {
 private:
 	REGION Region;			// region this tower protects
-    double TowerInitHealth; // initial health
+    double InitHealth; // initial health
     double Health;			// current health
     double Power;   		// TP from input file
     int MaxEnemies;			// Maximum number of enemies attacked per time step
@@ -20,6 +20,10 @@ private:
 	double TotalDamage;		// From fighters 
 	int BulletShots;		// Number of bullet fires
 	int IceShots;			// Number of ice fires
+
+    bool DecideFireType();
+    double CalcPriority(Enemy* e, int currentTime) const;
+    int SelectTargets(LinkedList<Enemy*>& active, Enemy* targets[], int currentTime);
 
 public:
 

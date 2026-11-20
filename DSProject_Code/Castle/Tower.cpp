@@ -11,7 +11,7 @@
 Tower::Tower()
 {
 	Region = A_REG;			    // region this tower protects
-	TowerInitHealth = 0;		// initial health
+	InitHealth = 0;		        // initial health
 	Health = 0;				    // current health
 	Power = 0;	    		    // TP from input file
     MaxEnemies = 0;				// Maximum number of enemies attacked per time step
@@ -21,7 +21,7 @@ Tower::Tower()
 	TotalDamage = 0;			// From fighters 
 	BulletShots = 0;			// Number of bullet fires
 	IceShots = 0;				// Number of ice fires
-	SetHealth(TowerInitHealth);
+	SetHealth(InitHealth);
 }
 
 //Receives the input file data (region, TH, N, TP) and stores it in the attributes. 
@@ -31,7 +31,7 @@ void Tower::SetData(REGION region, double TH, int N, double TP)
     Region = region;
     MaxEnemies = N;
     Power = TP;
-    TowerInitHealth = TH;
+    InitHealth = TH;
     IceThreshold = 0.1 * TH;
     SetHealth(TH);
 }
@@ -175,11 +175,11 @@ bool Tower::DecideFireType()
 double Tower::CalcPriority(Enemy* e, int currentTime) const
 {
     double typeWeight = 1;
-    if (e->GetType() == HEALER)
+    if (e->GetType() == Healer_Type)
     {
         typeWeight = 3;
     }
-    else if (e->GetType() == FREEZER)
+    else if (e->GetType() == Freezer_Type)
     {
         typeWeight = 2;
     }
