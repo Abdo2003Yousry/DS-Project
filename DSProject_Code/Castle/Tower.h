@@ -56,4 +56,9 @@ public:
     void Fire(LinkedList<Enemy*>& active, int currentTime);
     void FireBullet(Enemy* e, int currentTime);
     void FireIce(Enemy* e, int currentTime);
+    // add missing fun by abdelrhman
+    // Fire
+    bool DecideFireType();
+    double CalcPriority(Enemy* e, int currentTime) const;
+    int SelectTargets(LinkedList<Enemy*>& active, Enemy* targets[], int currentTime);
 };
