@@ -209,7 +209,7 @@ int Tower::SelectTargets(LinkedList<Enemy*>& active, Enemy* targets[], int curre
 
     int count = 0;
     Enemy* target;
-    while (count < MaxEnemies && pq.Dequeue(e))
+    while (count < MaxEnemies && pq.Dequeue(target))
     {
         targets[count] = target;
         count++;
