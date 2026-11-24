@@ -34,13 +34,10 @@ void Tower::SetRegion(REGION r)
 {
     Region = r;
 }
-
-
 void Tower::SetMaxTargets(int n)
 {
     MaxEnemies = n;
 }
-
 void Tower::SetFirePower(double p)
 {
     Power = p;
