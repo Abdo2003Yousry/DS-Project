@@ -1,7 +1,7 @@
 #include "Battle.h"
-#include "D:\ITI\DS\DS project\DSProject_Code\DSProject_Code\Enemies\Fighter.h"
-#include "D:\ITI\DS\DS project\DSProject_Code\DSProject_Code\Enemies\Healer.h"
-#include "D:\ITI\DS\DS project\DSProject_Code\DSProject_Code\Enemies\Freezer.h"
+#include "Enemies/Fighter.h"
+#include "Enemies/Healer.h"
+#include "Enemies/Freezer.h"
 #include <iostream>
 #include <cstdlib>
 

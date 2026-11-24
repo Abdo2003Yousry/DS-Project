@@ -21,6 +21,7 @@ Tower::Tower()
 	TotalDamage = 0;			// From fighters 
 	BulletShots = 0;			// Number of bullet fires
 	IceShots = 0;				// Number of ice fires
+    NextIceTime = 0;         
 	SetHealth(InitHealth);
 }
 
@@ -32,8 +33,10 @@ void Tower::SetData(REGION region, double TH, int N, double TP)
     MaxEnemies = N;
     Power = TP;
     InitHealth = TH;
-    IceThreshold = 0.1 * TH;
     SetHealth(TH);
+    IceThreshold = 0.1 * TH; 
+    //freeze limit = 10% of initial health
+    //tower freezes when accumulated ice reaches 10% of its initial health
 }
 
 //// Getters & Setters ////
@@ -121,10 +124,7 @@ void Tower::ReceiveDamage(double d)
 //Called by the Freezer. Ignored if the tower is already frozen
 void Tower::ReceiveIce(double ice)
 {
-    if (Frozen)
-    {
-        return;
-    }
+    if (Frozen)     return;
 
     IceAccumulated += ice;
     if (IceAccumulated >= IceThreshold)
@@ -143,6 +143,7 @@ void Tower::UpdateFreezeState()
 {
     Frozen = false;
 }
+////set freeze time = 3s
 
 
 //// Fire ////
@@ -150,8 +151,9 @@ void Tower::UpdateFreezeState()
 //Randomly decides between bullet and ice, 
 //// with ice never exceeding 20% of all fires
 //// At random time steps the tower fires ice
-bool Tower::DecideFireType()
+bool Tower::DecideFireType(int currentTime)
 {
+    //ice never exceed 20% of all fires
     int totalShots = BulletShots + IceShots;
     bool allowIce = false;
     if ((IceShots + 1) <= 0.2 * (totalShots + 1))
@@ -159,38 +161,37 @@ bool Tower::DecideFireType()
         allowIce = true;
     }
 
-    double randomShot = rand() % 100;
-    bool chance = false;
-    if (randomShot < 20)
+    //time for the next ice fire
+    bool timeForIce = currentTime >= NextIceTime;
+    if (allowIce && timeForIce)
     {
-        chance = true;
+        int wait = 1 + rand() % MaxIceWait;
+        NextIceTime = currentTime + wait;
+        return true;
     }
 
-    return allowIce && chance;
+    return false;
 }
 
 //Computes the priority of one enemy using a formula
-//with at least three factors (distance, power, type, health, state, last shot, remaining reload, ...)
-//* priority = 10 * (1 / distance) + power + 2 * typeWeight - remainingReload
+//with at least three factors (distance, power, type, remaining reload, ...)
+//* priority = 10.0 / distance + power + typeWeight - remainingReload
 double Tower::CalcPriority(Enemy* e, int currentTime) const
 {
-    double typeWeight = 1;
+    double weight = 1; //Fighter_Type
     if (e->GetType() == Healer_Type)
     {
-        typeWeight = 3;
+        weight = 2;
     }
     else if (e->GetType() == Freezer_Type)
     {
-        typeWeight = 2;
+        weight = 3;
     }
-    
-    double distanceScore = 10.0 / e->GetDistance();
-    double powerScore = e->GetPower();
-    double typeScore = 2 * typeWeight;
-    double reloadPenalty = e->GetNextActionTime() - currentTime;
-    if (reloadPenalty < 0)
-        reloadPenalty = 0;
-    double priority = distanceScore + powerScore + typeScore - reloadPenalty;
+    double closeness = 10.0 / e->GetDistance();
+    double power = e->GetPower();
+    double remaining = e->GetNextActionTime() - currentTime;
+    if (remaining < 0)  remaining = 0;
+    double priority = closeness + power + weight - remaining;
     return priority;
 }
 
@@ -198,23 +199,26 @@ double Tower::CalcPriority(Enemy* e, int currentTime) const
 //stores them in targets[], and returns their count
 int Tower::SelectTargets(LinkedList<Enemy*>& active, Enemy* targets[], int currentTime)
 {
-    PriorityQueue<Enemy*> pq;
-
+    PriorityQueue<Enemy*> PriQueue;
     Node<Enemy*>* current = active.getHead();
 
+    //loop over the enemies list nodes
+    //set them and their priority into PQ
     while (current != nullptr)
     {
         Enemy* e = current->getItem();
         double priority = CalcPriority(e, currentTime);
-        pq.insert(e, priority);
+        PriQueue.insert(e, priority);
+
         current = current->getNext();
     }
 
     int count = 0;
     Enemy* target;
-    while (count < MaxEnemies && pq.extractMax(target))
+    //get the highest priority items
+    while (count < MaxEnemies && PriQueue.extractMax(target))
     {
-        targets[count] = target;
+        targets[count] = target; // for Fire()
         count++;
     }
     return count;
@@ -227,17 +231,15 @@ int Tower::SelectTargets(LinkedList<Enemy*>& active, Enemy* targets[], int curre
 //otherwise selects the targets and fires a bullet or ice at each one
 void Tower::Fire(LinkedList<Enemy*>& active, int currentTime)
 {
-    if (IsDestroyed() || IsFrozen() || MaxEnemies <= 0)
-    {
-        return;
-    }
+    if (IsDestroyed() || IsFrozen() || MaxEnemies <= 0)     return;
 
-    Enemy** targets = new Enemy * [MaxEnemies];
+    Enemy** targets = new Enemy * [MaxEnemies]; //from input file
+
     int count = SelectTargets(active, targets, currentTime);
 
     for (int i = 0; i < count; i++)
     {
-        if (DecideFireType())
+        if (DecideFireType(currentTime))
         {
             FireIce(targets[i], currentTime);
         }
@@ -249,17 +251,15 @@ void Tower::Fire(LinkedList<Enemy*>& active, int currentTime)
     delete[] targets;
 }
 
-//Computes DTE and applies it to the enemy (K = 2 for healers), and records the first shot time
+//Computes DTE and applies it to the enemy (K = 2 for healers), 
+//and records the first shot time
 //// Damage (tower -> enemy) = (1 / distance) * TP * (1 / K)
 void Tower::FireBullet(Enemy* e, int currentTime)
 {
-    double K = 1;
-    if (e->GetType() == Healer_Type)
-    {
-        K = 2;
-    }
+    double k = 1;   //Other types
+    if (e->GetType() == Healer_Type)    k = 2;
 
-    double damage = (1.0 / e->GetDistance()) * Power * (1.0 / K);
+    double damage = (1.0 / e->GetDistance()) * Power * (1.0 / k);
 
     e->SetFirstShotTime(currentTime);
     e->TakeDamage(damage, currentTime);
@@ -267,17 +267,11 @@ void Tower::FireBullet(Enemy* e, int currentTime)
 }
 
 //Computes the freeze duration, freezes the enemy, and records the first shot time
+//* freezeSteps = 3 if distance <= 10, otherwise 1 
 void Tower::FireIce(Enemy* e, int currentTime)
 {
-    int freezeSteps = (int)ceil(Power / e->GetDistance());
-    if (freezeSteps < 1)
-    {
-        freezeSteps = 1;
-    }
-    if (freezeSteps > 5)
-    {
-        freezeSteps = 5;
-    }
+    int freezeSteps = 1;
+    if (e->GetDistance() <= 10)     freezeSteps = 3;
 
     e->SetFirstShotTime(currentTime);
     e->Freeze(freezeSteps, currentTime);

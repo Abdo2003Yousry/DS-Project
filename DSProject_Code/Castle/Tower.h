@@ -20,6 +20,7 @@ private:
 	double TotalDamage;		// From fighters 
 	int BulletShots;		// Number of bullet fires
 	int IceShots;			// Number of ice fires
+    int NextIceTime;        // time step when the next ice fire is allowed
 
     /*bool DecideFireType();
     double CalcPriority(Enemy* e, int currentTime) const;
@@ -58,7 +59,7 @@ public:
     void FireIce(Enemy* e, int currentTime);
     // add missing fun by abdelrhman
     // Fire
-    bool DecideFireType();
+    bool DecideFireType(int currentTime);
     double CalcPriority(Enemy* e, int currentTime) const;
     int SelectTargets(LinkedList<Enemy*>& active, Enemy* targets[], int currentTime);
 };

@@ -8,6 +8,7 @@
 								// (will be drawn vertical to each other)
 #define MaxEnemyCount 300       // the maximum number of enemies the application can work on
 #define TowerInitHealth 200
+#define MaxIceWait 30           // max steps to wait between two ice fires of a tower
 
 //The four regions: A, B, C , and D
 enum REGION {	
