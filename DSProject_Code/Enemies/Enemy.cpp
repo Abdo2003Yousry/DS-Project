@@ -12,7 +12,7 @@ Enemy::Enemy(color r_c, REGION r_region, int r_id, int r_arrivalTime,
 	Health = r_health;
 	OriginalHealth = r_health;
 	Power = r_power;
-	State = InActive;
+	State = Inactive;
 	Type = r_type;
 	ArrivalTime = r_arrivalTime;
 	ReloadPeriod = r_reloadPeriod;
@@ -157,7 +157,7 @@ void Enemy::TakeDamage(double damage, int currentTime) {
 	if (!IsKilled()) {
 
 		// Record first hit time only once
-		if (FirstShotTime == 0) {
+		if (FirstShotTime == -1) {
 			SetFirstShotTime(currentTime);
 		}
 
