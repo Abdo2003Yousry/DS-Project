@@ -12,7 +12,7 @@ Enemy::Enemy(color r_c, REGION r_region, int r_id, int r_arrivalTime,
 	Health = r_health;
 	OriginalHealth = r_health;
 	Power = r_power;
-	State = InActive;
+	State = Inactive;
 	Type = r_type;
 	ArrivalTime = r_arrivalTime;
 	ReloadPeriod = r_reloadPeriod;
