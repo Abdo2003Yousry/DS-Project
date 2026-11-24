@@ -9,18 +9,15 @@ Castle::Castle()
 		Towers[i].SetRegion((REGION)i);
 }
 
-void Castle::SetTowerHealth(REGION r, double h)
-{
-		Towers[r].SetHealth(h);	
-}
 
-// Gives every tower the same N and TP 
-void Castle::SetTowersData(int N, double TP)
+// Gives every tower the same TH ,N and TP 
+void Castle::SetTowersData(double TH, int N, double TP)
 {
 	for (int i = 0; i < NoOfRegions; i++)
 	{
 		Towers[i].SetMaxTargets(N);    // max enemies the tower can attack per time step
 		Towers[i].SetFirePower(TP);    // tower power
+		Towers[i].SetHealth(TH);        
 	}
 }
 
