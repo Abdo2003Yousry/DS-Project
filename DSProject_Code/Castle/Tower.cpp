@@ -143,6 +143,7 @@ void Tower::UpdateFreezeState()
 {
     Frozen = false;
 }
+////set freeze time = 3s
 
 
 //// Fire ////
@@ -168,9 +169,10 @@ bool Tower::DecideFireType()
 
     return allowIce && chance;
 }
+////set time frame to the rand()
 
 //Computes the priority of one enemy using a formula
-//with at least three factors (distance, power, type, health, state, last shot, remaining reload, ...)
+//with at least three factors (distance, power, type, remaining reload, ...)
 //* priority = 10 * (1 / distance) + power + 2 * typeWeight - remainingReload
 double Tower::CalcPriority(Enemy* e, int currentTime) const
 {
@@ -267,6 +269,7 @@ void Tower::FireBullet(Enemy* e, int currentTime)
 }
 
 //Computes the freeze duration, freezes the enemy, and records the first shot time
+//* freezeSteps = min( ceil(Power / distance) , 5 ) 
 void Tower::FireIce(Enemy* e, int currentTime)
 {
     int freezeSteps = (int)ceil(Power / e->GetDistance());
@@ -283,3 +286,5 @@ void Tower::FireIce(Enemy* e, int currentTime)
     e->Freeze(freezeSteps, currentTime);
     IceShots++;
 }
+//// set freezeSteps, currentTime
+//// function when to react
