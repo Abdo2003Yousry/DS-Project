@@ -157,7 +157,7 @@ void Enemy::TakeDamage(double damage, int currentTime) {
 	if (!IsKilled()) {
 
 		// Record first hit time only once
-		if (FirstShotTime == 0) {
+		if (FirstShotTime == -1) {
 			SetFirstShotTime(currentTime);
 		}
 

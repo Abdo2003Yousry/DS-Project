@@ -2,135 +2,227 @@
 #include "Enemies/Fighter.h"
 #include "Enemies/Healer.h"
 #include "Enemies/Freezer.h"
+#include "FileManager.h"
+#include "GUI/GUI.h"
+
 #include <iostream>
 #include <cstdlib>
+#include <ctime>
+#include <sstream>
 
-Battle::Battle()
+Battle::Battle() : EnemyCount(0), TotalEnemies(0), TimeStep(0)
 {
-	EnemyCount = 0;
+    for (int i = 0; i < NoOfRegions; ++i)
+        KilledEnemies[i] = 0;
+    for (int j = 0; j < MaxEnemyCount; ++j)
+        BEnemiesForDraw[j] = 0;
+}
+
+Battle::~Battle()
+{
+    ClearAllEnemies();
+}
+
+void Battle::ClearAllEnemies()
+{
+    InactiveEnemyRecord record;
+    while (InactiveEnemies.dequeue(record))
+        delete record.Ptr;
+
+    for (int region = A_REG; region <= D_REG; ++region)
+    {
+        Enemy* enemy = 0;
+        while (ActiveEnemies[region].removeFirst(enemy))
+            delete enemy;
+    }
+    EnemyCount = 0;
+}
+
+bool Battle::AddInactiveEnemy(Enemy* Ptr, int arrivalTime)
+{
+    if (Ptr == 0 || arrivalTime < 0 || TotalEnemies >= MaxEnemyCount)
+        return false;
+
+    InactiveEnemies.enqueue(InactiveEnemyRecord(Ptr, arrivalTime));
+    ++TotalEnemies;
+    return true;
 }
 
 void Battle::AddEnemy(Enemy* Ptr)
 {
-	if (EnemyCount < MaxEnemyCount) 
-		BEnemiesForDraw[EnemyCount++] = Ptr;
-
-	// Note that this function doesn't allocate any enemy objects
-	// It only makes the first free pointer in the array
-	// points to the same enemy pointed to by "Ptr"
+    if (Ptr != 0)
+        AddInactiveEnemy(Ptr, Ptr->GetArrivalTime());
 }
 
-
-Castle * Battle::GetCastle()
+void Battle::SetTowersData(double health, int maxEnemies, int towerPower)
 {
-	return &BCastle;
+    BCastle.SetTowersData(maxEnemies, towerPower);
+    for (int region = A_REG; region <= D_REG; ++region)
+        BCastle.SetTowerHealth(static_cast<REGION>(region), health);
 }
 
+Castle* Battle::GetCastle()
+{
+    return &BCastle;
+}
 
+void Battle::MoveArrivedEnemies()
+{
+    InactiveEnemyRecord record;
+    while (InactiveEnemies.peek(record) && record.ArrivalTime <= TimeStep)
+    {
+        InactiveEnemies.dequeue(record);
+        Enemy* enemy = record.Ptr;
+        REGION region = enemy->GetRegion();
 
+        // Keep the GUI's vertical stack within its supported 15 slots.
+        int distance = MaxDistance;
+        for (; distance >= MinDistance; --distance)
+        {
+            int atDistance = 0;
+            Node<Enemy*>* current = ActiveEnemies[region].getHead();
+            while (current != 0)
+            {
+                if (current->getItem()->GetDistance() == distance)
+                    ++atDistance;
+                current = current->getNext();
+            }
+            if (atDistance < MaxVerticalEnemies)
+                break;
+        }
+        if (distance < MinDistance)
+            distance = MinDistance;
 
+        enemy->SetDistance(distance);
+        enemy->SetState(Active);
+        ActiveEnemies[region].insertEnd(enemy);
+    }
+}
 
+int Battle::GetActiveCount() const
+{
+    int total = 0;
+    for (int region = A_REG; region <= D_REG; ++region)
+        total += ActiveEnemies[region].getCount();
+    return total;
+}
+
+void Battle::KillRandomActiveEnemies(int maximumToKill)
+{
+    for (int killed = 0; killed < maximumToKill; ++killed)
+    {
+        Enemy* candidates[MaxEnemyCount];
+        int candidateCount = 0;
+
+        for (int region = A_REG; region <= D_REG; ++region)
+        {
+            Node<Enemy*>* current = ActiveEnemies[region].getHead();
+            while (current != 0 && candidateCount < MaxEnemyCount)
+            {
+                candidates[candidateCount++] = current->getItem();
+                current = current->getNext();
+            }
+        }
+
+        if (candidateCount == 0)
+            return;
+
+        Enemy* selected = candidates[std::rand() % candidateCount];
+        REGION region = selected->GetRegion();
+        if (ActiveEnemies[region].remove(selected))
+        {
+            selected->SetState(Killed);
+            ++KilledEnemies[region];
+            delete selected;
+        }
+    }
+}
+
+void Battle::RefreshDrawingArray()
+{
+    EnemyCount = 0;
+    for (int region = A_REG; region <= D_REG; ++region)
+    {
+        Node<Enemy*>* current = ActiveEnemies[region].getHead();
+        while (current != 0 && EnemyCount < MaxEnemyCount)
+        {
+            BEnemiesForDraw[EnemyCount++] = current->getItem();
+            current = current->getNext();
+        }
+    }
+}
+
+void Battle::PrintStatus(GUI* pGUI) const
+{
+    std::ostringstream status;
+    status << "Step: " << TimeStep;
+    for (int region = A_REG; region <= D_REG; ++region)
+    {
+        status << " | " << static_cast<char>('A' + region)
+            << " HP: " << BCastle.GetTowerHealth(static_cast<REGION>(region));
+    }
+    // Add each region's active and killed counts, as required by Phase 1.
+    for (int region = A_REG; region <= D_REG; ++region)
+    {
+        status << " | " << static_cast<char>('A' + region)
+            << " Active: " << ActiveEnemies[region].getCount()
+            << " Killed: " << KilledEnemies[region];
+    }
+    status << " | Click to advance";
+    pGUI->PrintMessage(status.str());
+}
 
 void Battle::RunSimulation()
 {
-	Just_A_Demo();
-}
+    std::cout << "===== Castle Battle - Phase 1 =====\n";
+    std::cout << "Enter input file name (example: input.txt): ";
+    std::string filename;
+    std::cin >> filename;
 
+    FileManager fileManager;
+    if (!fileManager.LoadInputFile(filename, *this))
+    {
+        std::cout << "Input loading failed. Simulation stopped.\n";
+        return;
+    }
 
-//This is just a demo function for project introductory phase
-//It should be removed in phases 1&2
-void Battle::Just_A_Demo()
-{
-	
-	std::cout<<"\nWelcome to Castle Battle:\n";
-	std::cout<<"\nIn phase2, you will be asked to select game mode\n";
-	std::cout<<"\nFor now just press ENTER key to continue...";
-	
-	char tmp[10];
-	std::cin.getline(tmp,10);
-	//
-	// THIS IS JUST A DEMO
-	// IT SHOULD BE REMOVED IN PHASE 1 AND PHASE 2
-	//
-	
-	GUI * pGUI = new GUI;
+    if (TotalEnemies == 0)
+    {
+        std::cout << "The input file contains no enemies.\n";
+        return;
+    }
 
-	pGUI->PrintMessage("This is Just a Demo. It should be changed ib phase1 & phase2. Click to move to next step");
+    std::srand(static_cast<unsigned int>(std::time(0)));
+    GUI* pGUI = new GUI;
+    Point click;
 
-	
-	 
-	// Declare some enemies and fill their data
-	// In the game, enemies should be loaded from an input file
-	// and should be dynamically allocated
-	
-	//Enemy e1(DARKBLUE, A_REG, 6);
-	//Enemy e2(DARKBLUE, D_REG, 60);
-	//Enemy e3(DARKOLIVEGREEN, B_REG, 60); 
-	//Enemy e4(DARKOLIVEGREEN, A_REG, 4);
-	//Enemy e5(ORANGERED, C_REG, 19); 
-	//Enemy e6(ORANGERED, C_REG, 30); 
-	//Enemy e7(ORANGERED, A_REG, 2);
-	//Enemy e8(DARKOLIVEGREEN, C_REG, 7); 
-	//Enemy e9(ORANGERED, A_REG, 30); 
-	//Enemy e10(DARKBLUE, C_REG, 4);
-	//Enemy e11(GREEN, A_REG, 20);
-	
+    pGUI->PrintMessage("Phase 1 ready. Click to start.");
+    pGUI->GetPointClicked(click);
 
-	// Adding the enemies to the battle
-	Fighter e1(DARKBLUE, A_REG, 1, 1, 10, 2, 4, 6);
-	Fighter e2(DARKBLUE, D_REG, 2, 3, 15, 3, 4, 60);
+    // Time starts at zero so enemies whose arrival time is zero are handled.
+    while (!InactiveEnemies.isEmpty() || GetActiveCount() > 0)
+    {
+        MoveArrivedEnemies();
+        RefreshDrawingArray();
+        pGUI->DrawBattle(BEnemiesForDraw, EnemyCount);
+        PrintStatus(pGUI);
 
-	Healer e3(DARKOLIVEGREEN, B_REG, 3, 2, 20, 5, 4, 60);
-	Healer e4(DARKOLIVEGREEN, A_REG, 4, 4, 15, 4, 3, 4);
+        pGUI->GetPointClicked(click);
+        KillRandomActiveEnemies(4);
+        ++TimeStep;
+    }
 
-	Freezer e5(ORANGERED, C_REG, 5, 5, 19, 3, 4, 19);
-	Freezer e6(ORANGERED, C_REG, 6, 6, 30, 4, 3, 30);
-	Freezer e7(ORANGERED, A_REG, 7, 7, 20, 2, 5, 2);
+    RefreshDrawingArray();
+    pGUI->DrawBattle(BEnemiesForDraw, EnemyCount);
+    std::ostringstream finalStatus;
+    int totalKilled = 0;
+    for (int region = A_REG; region <= D_REG; ++region)
+        totalKilled += KilledEnemies[region];
 
-	Healer e8(DARKOLIVEGREEN, C_REG, 8, 8, 25, 5, 4, 7);
+    finalStatus << "Phase 1 complete | Total: " << TotalEnemies
+        << " | Killed: " << totalKilled;
+    pGUI->PrintMessage(finalStatus.str());
+    std::cout << "Phase 1 completed. Time steps: " << TimeStep << "\n";
 
-	Freezer e9(ORANGERED, A_REG, 9, 9, 30, 3, 4, 30);
-
-	Fighter e10(DARKBLUE, C_REG, 10, 10, 40, 6, 3, 4);
-	AddEnemy(&e1);
-	AddEnemy(&e2);
-	AddEnemy(&e3);
-	AddEnemy(&e4);
-	AddEnemy(&e5);
-	AddEnemy(&e6);
-	AddEnemy(&e7);
-	AddEnemy(&e8);
-	AddEnemy(&e9);
-	AddEnemy(&e10);
-
-	// Drawing the battle
-	pGUI->DrawBattle(BEnemiesForDraw, EnemyCount);
-
-	Point p;
-	pGUI->GetPointClicked(p);
-
-	// Now a demo to move enemies some time steps
-	// TimeStep is a normal integer that is incremented each time by 1
-	for(int TimeStep = 1 ; TimeStep <= 30 ; TimeStep++)
-	{
-
-		// Decrement the distance of each enemy. Just for the sake of demo
-		e1.DecrementDist();
-		e2.DecrementDist();
-		e3.DecrementDist();
-		e4.DecrementDist();
-		e5.DecrementDist();
-		e6.DecrementDist();
-		e7.DecrementDist();
-		e8.DecrementDist();
-		e9.DecrementDist();
-		e10.DecrementDist();
-
-		// Redraw the enemies
-		pGUI->DrawBattle(BEnemiesForDraw, EnemyCount);
-
-		pGUI->GetPointClicked(p);
-	}
-
-	delete pGUI;
+    delete pGUI;
 }

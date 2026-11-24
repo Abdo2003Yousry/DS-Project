@@ -1,36 +1,56 @@
+
 #pragma once
 
-#include "Enemies\Enemy.h"
-#include "Castle\Castle.h"
+#include "Enemies/Enemy.h"
+#include "Castle/Castle.h"
 
-// it is the controller of the project
+#include "Data_structure/LinkedQueue.h"
+#include "Data_structure/LinkedList.h"
+#include "Data_structure/PriorityQueue.h"
+
+class GUI;
+
 class Battle
 {
 private:
-	Castle BCastle;
-	int EnemyCount;	//the actual number of enemies in the game
-	Enemy * BEnemiesForDraw[MaxEnemyCount]; // This Array of Pointers is used for drawing elements in the GUI
-								  			// No matter what list type you are using to hold enemies, 
-											// you must pass the enemies to the GUI function as an array of enemy pointers. 
-											// At every time step, you should update those pointers 
-											// to point to the current active enemies 
-											// then pass the pointers list to the GUI function
+    Castle BCastle;
 
-	//
-	// TODO: Add More Data Members As Needed
-	//
+    // 1. Enemies that have not arrived yet
+    LinkedQueue<Enemy*> InactiveEnemies;
+
+    // 2. Active enemies: one LinkedList for each region
+    LinkedList<Enemy*> ActiveEnemies[NoOfRegions];
+
+    // 3. Killed enemies, sorted by priority
+    PriorityQueue<Enemy*> KilledEnemies;
+
+    // GUI drawing array
+    Enemy* BEnemiesForDraw[MaxEnemyCount];
+    int EnemyCount;
+
+    // Simulation information
+    int TotalEnemies;
+    int KilledCount[NoOfRegions];
+    int TimeStep;
+
+    // Helper functions
+    void MoveArrivedEnemies();
+    int GetActiveCount() const;
+    void KillRandomActiveEnemies(int maximumToKill);
+    void RefreshDrawingArray();
+    void PrintStatus(GUI* pGUI) const;
+    void ClearAllEnemies();
 
 public:
-	
-	Battle();
-	void AddEnemy(Enemy* Ptr);
-	Castle * GetCastle();
-	void RunSimulation();
+    Battle();
+    ~Battle();
 
-	void Just_A_Demo();	//just to show a demo and should be removed in phase1 1 & 2
+    bool AddInactiveEnemy(Enemy* Ptr, int arrivalTime = 0);
+    void AddEnemy(Enemy* Ptr);
 
-	//
-	// TODO: Add More Member Functions As Needed
-	//
+    void SetTowersData(double health, int maxEnemies, int towerPower);
+
+    Castle* GetCastle();
+
+    void RunSimulation();
 };
-
