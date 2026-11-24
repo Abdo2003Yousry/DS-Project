@@ -1,10 +1,12 @@
-#pragma once
 
+#pragma once
 
 #include "Enemies/Enemy.h"
 #include "Castle/Castle.h"
+
 #include "Data_structure/LinkedQueue.h"
 #include "Data_structure/LinkedList.h"
+#include "Data_structure/PriorityQueue.h"
 
 class GUI;
 
@@ -13,28 +15,25 @@ class Battle
 private:
     Castle BCastle;
 
-    // The input is sorted by arrival time, so this queue is efficient:
-    // enqueue/dequeue/peek are O(1).
-    struct InactiveEnemyRecord
-    {
-        Enemy* Ptr;
-        int ArrivalTime;
-        InactiveEnemyRecord() : Ptr(0), ArrivalTime(0) {}
-        InactiveEnemyRecord(Enemy* enemy, int arrival)
-            : Ptr(enemy), ArrivalTime(arrival) {}
-    };
+    // 1. Enemies that have not arrived yet
+    LinkedQueue<Enemy*> InactiveEnemies;
 
-    LinkedQueue<InactiveEnemyRecord> InactiveEnemies;
+    // 2. Active enemies: one LinkedList for each region
     LinkedList<Enemy*> ActiveEnemies[NoOfRegions];
 
-    // The GUI drawing interface requires one array containing all active enemies.
+    // 3. Killed enemies, sorted by priority
+    PriorityQueue<Enemy*> KilledEnemies;
+
+    // GUI drawing array
     Enemy* BEnemiesForDraw[MaxEnemyCount];
     int EnemyCount;
 
+    // Simulation information
     int TotalEnemies;
-    int KilledEnemies[NoOfRegions];
+    int KilledCount[NoOfRegions];
     int TimeStep;
 
+    // Helper functions
     void MoveArrivedEnemies();
     int GetActiveCount() const;
     void KillRandomActiveEnemies(int maximumToKill);
@@ -48,8 +47,10 @@ public:
 
     bool AddInactiveEnemy(Enemy* Ptr, int arrivalTime = 0);
     void AddEnemy(Enemy* Ptr);
+
     void SetTowersData(double health, int maxEnemies, int towerPower);
 
     Castle* GetCastle();
+
     void RunSimulation();
 };
