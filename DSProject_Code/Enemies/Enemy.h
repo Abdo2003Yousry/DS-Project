@@ -65,7 +65,7 @@ public:
     int GetArrivalTime() const;//Done
     int GetReloadPeriod() const;//Done
     int GetNextActionTime() const;//Done
-
+    enemyType GetType() const;
     enemyState GetState() const;//Done
 
     // Setters

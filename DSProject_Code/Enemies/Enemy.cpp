@@ -47,7 +47,10 @@ int Enemy::GetDistance() const {
 int Enemy::GetID() const {
 	return ID;
 }
-
+enemyType Enemy::GetType() const
+{
+	return Type;
+}
 double Enemy::GetHealth() const {
 	return Health;
 }
