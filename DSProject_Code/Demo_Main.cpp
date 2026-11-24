@@ -3,11 +3,10 @@
 
 int main()
 {
+	Battle* game = new Battle;
+	game->RunSimulation();
 	
-	Battle* pGameBattle = new Battle;
-	pGameBattle->RunSimulation();
-	
-	delete pGameBattle;
+	delete game;
 	
 	return 0;
 }
