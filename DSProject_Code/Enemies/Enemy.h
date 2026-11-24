@@ -6,7 +6,8 @@
 
 // Enemies colors
 const color FIGHTER_CLR = DARKBLUE;
-const color HEALER_CLR = ORANGERED;
+const color HEALER_CLR = DARKOLIVEGREEN;
+const color FREEZER_CLR = ORANGERED;
 
 // Forward declaration
 class Tower;
