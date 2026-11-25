@@ -29,8 +29,8 @@ bool FileManager::LoadInputFile(const std::string& filename, Battle& battle)
         return false;
     }
 
-    double towerHealth;
-    int maxEnemies, towerPower;
+    double towerHealth, towerPower;
+    int maxEnemies;
     if (!(input >> towerHealth >> maxEnemies >> towerPower) ||
         towerHealth <= 0 || maxEnemies <= 0 || towerPower <= 0)
     {
