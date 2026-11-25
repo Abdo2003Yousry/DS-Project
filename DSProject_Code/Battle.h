@@ -41,6 +41,9 @@ private:
     void PrintStatus(GUI* pGUI) const;
     void ClearAllEnemies();
 
+    Enemy* GetActiveEnemyByIndex(int n) const;
+    void KillEnemy(Enemy* e);
+
 public:
     Battle();
     ~Battle();
@@ -48,7 +51,7 @@ public:
     bool AddInactiveEnemy(Enemy* Ptr, int arrivalTime = 0);
     void AddEnemy(Enemy* Ptr);
 
-    void SetTowersData(double health, int maxEnemies, int towerPower);
+    void SetTowersData(double health, int maxEnemies, double towerPower);
 
     Castle* GetCastle();
 

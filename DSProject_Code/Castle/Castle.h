@@ -17,10 +17,9 @@ class Castle
 public:
 	    
 		Castle();
-		void SetTowerHealth(REGION r, double h);
 
 		// set N, TP for all towers
-		void SetTowersData(int N, double TP);
+		void SetTowersData(double TH, int N, double TP);
 
 		// get the tower of this region
 		Tower* GetTower(REGION r);
