@@ -100,7 +100,7 @@ void Battle::RunSimulation()
     std::cout << "===== Castle Battle - Phase 1 =====\n";
     std::cout << "Enter input file name (example: input.txt): ";
     std::string filename;
-    std::cin >> filename;
+    std::getline(std::cin >> std::ws, filename);
 
     FileManager fileManager;
     if (!fileManager.LoadInputFile(filename, *this))
