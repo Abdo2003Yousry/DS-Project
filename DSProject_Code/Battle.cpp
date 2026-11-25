@@ -6,16 +6,17 @@
 #include "GUI/GUI.h"
 
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
+#include <cstdlib>   // rand, srand
+#include <ctime>     // time
 #include <sstream>
 
 Battle::Battle() : EnemyCount(0), TotalEnemies(0), TimeStep(0)
 {
-    for (int i = 0; i < NoOfRegions; ++i)
-        KilledEnemies[i] = 0;
-    for (int j = 0; j < MaxEnemyCount; ++j)
-        BEnemiesForDraw[j] = 0;
+    for (int i = 0; i < NoOfRegions; i++)
+        KilledCount[i] = 0;          // no killed enemies at the start
+
+    for (int j = 0; j < MaxEnemyCount; j++)
+        BEnemiesForDraw[j] = nullptr;   // no enemy to draw at the start
 }
 
 Battle::~Battle()
@@ -23,27 +24,13 @@ Battle::~Battle()
     ClearAllEnemies();
 }
 
-void Battle::ClearAllEnemies()
-{
-    InactiveEnemyRecord record;
-    while (InactiveEnemies.dequeue(record))
-        delete record.Ptr;
-
-    for (int region = A_REG; region <= D_REG; ++region)
-    {
-        Enemy* enemy = 0;
-        while (ActiveEnemies[region].removeFirst(enemy))
-            delete enemy;
-    }
-    EnemyCount = 0;
-}
 
 bool Battle::AddInactiveEnemy(Enemy* Ptr, int arrivalTime)
 {
     if (Ptr == 0 || arrivalTime < 0 || TotalEnemies >= MaxEnemyCount)
         return false;
 
-    InactiveEnemies.enqueue(InactiveEnemyRecord(Ptr, arrivalTime));
+    InactiveEnemies.enqueue(Ptr);
     ++TotalEnemies;
     return true;
 }
@@ -54,11 +41,9 @@ void Battle::AddEnemy(Enemy* Ptr)
         AddInactiveEnemy(Ptr, Ptr->GetArrivalTime());
 }
 
-void Battle::SetTowersData(double health, int maxEnemies, int towerPower)
+void Battle::SetTowersData(double health, int maxEnemies, double towerPower)
 {
-    BCastle.SetTowersData(maxEnemies, towerPower);
-    for (int region = A_REG; region <= D_REG; ++region)
-        BCastle.SetTowerHealth(static_cast<REGION>(region), health);
+    BCastle.SetTowersData(health, maxEnemies, towerPower);
 }
 
 Castle* Battle::GetCastle()
@@ -66,38 +51,6 @@ Castle* Battle::GetCastle()
     return &BCastle;
 }
 
-void Battle::MoveArrivedEnemies()
-{
-    InactiveEnemyRecord record;
-    while (InactiveEnemies.peek(record) && record.ArrivalTime <= TimeStep)
-    {
-        InactiveEnemies.dequeue(record);
-        Enemy* enemy = record.Ptr;
-        REGION region = enemy->GetRegion();
-
-        // Keep the GUI's vertical stack within its supported 15 slots.
-        int distance = MaxDistance;
-        for (; distance >= MinDistance; --distance)
-        {
-            int atDistance = 0;
-            Node<Enemy*>* current = ActiveEnemies[region].getHead();
-            while (current != 0)
-            {
-                if (current->getItem()->GetDistance() == distance)
-                    ++atDistance;
-                current = current->getNext();
-            }
-            if (atDistance < MaxVerticalEnemies)
-                break;
-        }
-        if (distance < MinDistance)
-            distance = MinDistance;
-
-        enemy->SetDistance(distance);
-        enemy->SetState(Active);
-        ActiveEnemies[region].insertEnd(enemy);
-    }
-}
 
 int Battle::GetActiveCount() const
 {
@@ -107,36 +60,6 @@ int Battle::GetActiveCount() const
     return total;
 }
 
-void Battle::KillRandomActiveEnemies(int maximumToKill)
-{
-    for (int killed = 0; killed < maximumToKill; ++killed)
-    {
-        Enemy* candidates[MaxEnemyCount];
-        int candidateCount = 0;
-
-        for (int region = A_REG; region <= D_REG; ++region)
-        {
-            Node<Enemy*>* current = ActiveEnemies[region].getHead();
-            while (current != 0 && candidateCount < MaxEnemyCount)
-            {
-                candidates[candidateCount++] = current->getItem();
-                current = current->getNext();
-            }
-        }
-
-        if (candidateCount == 0)
-            return;
-
-        Enemy* selected = candidates[std::rand() % candidateCount];
-        REGION region = selected->GetRegion();
-        if (ActiveEnemies[region].remove(selected))
-        {
-            selected->SetState(Killed);
-            ++KilledEnemies[region];
-            delete selected;
-        }
-    }
-}
 
 void Battle::RefreshDrawingArray()
 {
@@ -166,7 +89,7 @@ void Battle::PrintStatus(GUI* pGUI) const
     {
         status << " | " << static_cast<char>('A' + region)
             << " Active: " << ActiveEnemies[region].getCount()
-            << " Killed: " << KilledEnemies[region];
+            << " Killed: " << KilledCount[region];
     }
     status << " | Click to advance";
     pGUI->PrintMessage(status.str());
@@ -209,6 +132,8 @@ void Battle::RunSimulation()
 
         pGUI->GetPointClicked(click);
         KillRandomActiveEnemies(4);
+        RefreshDrawingArray();
+        pGUI->DrawBattle(BEnemiesForDraw, EnemyCount);
         ++TimeStep;
     }
 
@@ -217,7 +142,7 @@ void Battle::RunSimulation()
     std::ostringstream finalStatus;
     int totalKilled = 0;
     for (int region = A_REG; region <= D_REG; ++region)
-        totalKilled += KilledEnemies[region];
+        totalKilled += KilledCount[region];
 
     finalStatus << "Phase 1 complete | Total: " << TotalEnemies
         << " | Killed: " << totalKilled;
@@ -226,3 +151,101 @@ void Battle::RunSimulation()
 
     delete pGUI;
 }
+
+
+// move enemies whose arrival time came from Inactive to Active
+void Battle::MoveArrivedEnemies()
+{
+    Enemy* e;
+
+    // peek first, so we do not remove an enemy that did not arrive
+    while (InactiveEnemies.peek(e) && e->GetArrivalTime() <= TimeStep)
+    {
+        InactiveEnemies.dequeue(e);
+
+        e->SetState(Active);                    // now it is active
+        ActiveEnemies[e->GetRegion()].insertEnd(e);   // list of its region
+    }
+}
+
+
+// get the n active enemy, counting through the 4 regions
+Enemy* Battle::GetActiveEnemyByIndex(int n) const
+{
+    for (int r = 0; r < NoOfRegions; r++)
+    {
+        int count = ActiveEnemies[r].getCount();
+
+        if (n < count)    // the enemy is inside this region list
+        {
+            Node<Enemy*>* p = ActiveEnemies[r].getHead();
+            for (int i = 0; i < n; i++)
+                p = p->getNext();
+            return p->getItem();
+        }
+
+        n -= count;       // skip this region, go to the next one
+    }
+    return nullptr;
+}
+
+
+
+// move one active enemy from its region list to the killed list
+void Battle::KillEnemy(Enemy* e)
+{
+    ActiveEnemies[e->GetRegion()].remove(e);   // remove from active list
+
+    e->SetState(Killed);
+    e->SetKilledTime(TimeStep);
+
+    // smallest kill time leaves first 
+    KilledEnemies.insert(e, -(double)TimeStep * 100000);
+
+    KilledCount[e->GetRegion()]++;             // per region
+}
+
+
+
+
+// kill at most maximumToKill random active enemies
+void Battle::KillRandomActiveEnemies(int maximumToKill)
+{
+    for (int i = 0; i < maximumToKill; i++)
+    {
+        int activeCount = GetActiveCount();
+        if (activeCount == 0)
+            return;                          // nobody left to kill
+
+        int n = rand() % activeCount;        // random index
+        Enemy* e = GetActiveEnemyByIndex(n);
+        KillEnemy(e);
+    }
+}
+
+
+
+// delete every enemy that Battle still owns 
+void Battle::ClearAllEnemies()
+{
+    Enemy* e;
+
+    // 1) enemies that never arrived
+    while (InactiveEnemies.dequeue(e))
+        delete e;
+
+    // 2) active enemies, list of each region
+    for (int r = 0; r < NoOfRegions; r++)
+        while (ActiveEnemies[r].removeFirst(e))
+            delete e;
+
+    // 3) killed enemies
+    while (KilledEnemies.extractMax(e))
+        delete e;
+
+    EnemyCount = 0;
+}
+
+
+
+
