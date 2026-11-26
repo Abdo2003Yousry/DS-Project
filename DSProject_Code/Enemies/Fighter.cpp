@@ -1,6 +1,6 @@
 #include "Fighter.h"
 
-
+#include "../Castle/Tower.h"
 
 Fighter::Fighter(color r_c, REGION r_region, int r_id,
     int r_arrivalTime, double r_health, double r_power,
@@ -10,8 +10,7 @@ Fighter::Fighter(color r_c, REGION r_region, int r_id,
 {
 }
 
-void Fighter::Act(Tower* tower, Enemy* enemies[],
-    int count, int currentTime)
+void Fighter::Act(Tower* tower, Enemy* enemies[],int count, int currentTime)
 {
     if (GetState() == Active && CanAct(currentTime))
     {

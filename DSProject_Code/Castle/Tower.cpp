@@ -126,6 +126,12 @@ void Tower::ReceiveIce(double ice)
 {
     if (Frozen)     return;
 
+    //the freezing threshold of a tower can never be reached by a single ice shot
+    if (ice > 0.5 * IceThreshold)
+    {
+        ice = 0.5 * IceThreshold;
+    }
+
     IceAccumulated += ice;
     if (IceAccumulated >= IceThreshold)
     {
@@ -133,7 +139,6 @@ void Tower::ReceiveIce(double ice)
         IceAccumulated = 0;
     }
 }
-
 
 //// Freeze ////
 
