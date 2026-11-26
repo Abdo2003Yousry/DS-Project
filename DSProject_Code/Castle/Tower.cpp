@@ -10,19 +10,19 @@
 //Sets the tower to default values (zero) until the real data arrives
 Tower::Tower()
 {
-	Region = A_REG;			    // region this tower protects
-	InitHealth = 0;		        // initial health
-	Health = 0;				    // current health
-	Power = 0;	    		    // TP from input file
+    Region = A_REG;			    // region this tower protects
+    InitHealth = 0;		        // initial health
+    Health = 0;				    // current health
+    Power = 0;	    		    // TP from input file
     MaxEnemies = 0;				// Maximum number of enemies attacked per time step
-	Frozen = false;			    // True while the tower is frozen
-	IceAccumulated = 0;		    // Ice thrown on the tower 
-	IceThreshold = 0;		    //Freeze when IceAccumulated reaches it
-	TotalDamage = 0;			// From fighters 
-	BulletShots = 0;			// Number of bullet fires
-	IceShots = 0;				// Number of ice fires
-    NextIceTime = 0;         
-	SetHealth(InitHealth);
+    Frozen = false;			    // True while the tower is frozen
+    IceAccumulated = 0;		    // Ice thrown on the tower 
+    IceThreshold = 0;		    //Freeze when IceAccumulated reaches it
+    TotalDamage = 0;			// From fighters 
+    BulletShots = 0;			// Number of bullet fires
+    IceShots = 0;				// Number of ice fires
+    NextIceTime = 0;
+    SetHealth(InitHealth);
 }
 
 //Receives the input file data (region, TH, N, TP) and stores it in the attributes. 
@@ -34,7 +34,7 @@ void Tower::SetData(REGION region, double TH, int N, double TP)
     Power = TP;
     InitHealth = TH;
     SetHealth(TH);
-    IceThreshold = 0.1 * TH; 
+    IceThreshold = 0.1 * TH;
     //freeze limit = 10% of initial health
     //tower freezes when accumulated ice reaches 10% of its initial health
 }
@@ -126,6 +126,12 @@ void Tower::ReceiveIce(double ice)
 {
     if (Frozen)     return;
 
+    //the freezing threshold of a tower can never be reached by a single ice shot
+    if (ice > 0.5 * IceThreshold)
+    {
+        ice = 0.5 * IceThreshold;
+    }
+
     IceAccumulated += ice;
     if (IceAccumulated >= IceThreshold)
     {
@@ -143,7 +149,6 @@ void Tower::UpdateFreezeState()
 {
     Frozen = false;
 }
-////set freeze time = 3s
 
 
 //// Fire ////
@@ -267,7 +272,7 @@ void Tower::FireBullet(Enemy* e, int currentTime)
 }
 
 //Computes the freeze duration, freezes the enemy, and records the first shot time
-//* freezeSteps = 3 if distance <= 10, otherwise 1 
+//// freezeSteps = 3 if distance <= 10, otherwise 1 
 void Tower::FireIce(Enemy* e, int currentTime)
 {
     int freezeSteps = 1;
