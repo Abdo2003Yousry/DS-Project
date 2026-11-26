@@ -101,7 +101,7 @@ bool FileManager::LoadInputFile(const std::string& filename, Battle& battle)
         }
         else
         {
-            enemyColor = GREEN;
+            enemyColor = FREEZER_CLR;
             enemy = new Freezer(enemyColor, enemyRegion, id, arrivalTime,
                 health, power, reloadPeriod);
         }
