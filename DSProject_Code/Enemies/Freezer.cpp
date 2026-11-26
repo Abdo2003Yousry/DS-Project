@@ -10,17 +10,17 @@ Freezer::Freezer(color r_c, REGION r_region, int r_id,
 
 void Freezer::Act(Tower* tower, Enemy* enemies[], int count, int currentTime)
 {
-    if (GetState() == Active && !IsFrozen(currentTime) && CanAct(currentTime))
+    if (GetState() == Active && CanAct(currentTime))
     {
-        double iceAmount = GetPower() / GetDistance();  // Çáßãíå åÊÚÊãÌ Úáì ãÓÇİÊå ãä ÇáÈÑÌ æßãÇä åæ ŞæÊå ßÇã 
+        double iceAmount = GetPower() / GetDistance(); //decided by trial and error // Çáßãíå åÊÚÊãÌ Úáì ãÓÇİÊå ãä ÇáÈÑÌ æßãÇä åæ ŞæÊå ßÇã 
 
-        int freezeDuration = GetPower() / 5; //ÇÎÊÑÊ ÇáÑŞã ÚÔæÇÆí æåÌÑÈ áãÇ äÚãá ÓãíáæíÔä æÇÔæİ ÇáãÏå ßæíÓå æáÇ áÇ
+        int freezeDuration = GetPower() / 5; //decided by trial and error //ÇÎÊÑÊ ÇáÑŞã ÚÔæÇÆí æåÌÑÈ áãÇ äÚãá ÓãíáæíÔä æÇÔæİ ÇáãÏå ßæíÓå æáÇ áÇ
 
-        if (freezeDuration < 1)
+        if (freezeDuration < 1) // áÇÒã ÑŞã ÕÍíÍ ÚáÔÇä ÇäÇ ÈÊÚÇãá ãÚ ÇáÊíã ÓÊíÈ ËÇäíå ËÇäíå
             freezeDuration = 1;
 
         // Send ice amount and freeze duration to tower
-       // tower->TakeIce(iceAmount, freezeDuration); wait to coorect name from somaya
+        tower->ReceiveIce(iceAmount, freezeDuration);
 
         UpdateNextActionTime(currentTime);
     }

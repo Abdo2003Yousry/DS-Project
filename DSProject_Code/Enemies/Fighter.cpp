@@ -15,15 +15,15 @@ void Fighter::Act(Tower* tower, Enemy* enemies[],
 {
     if (GetState() == Active && CanAct(currentTime))
     {
-        double K = 1;
+        double K = 1; // k =1 if enemy health >= original health otherwose k=0.5
 
         if (GetHealth() < GetOriginalHealth() / 2)
             K = 0.5;
 
-        double damage = (K * GetPower()) / GetDistance();
+        double damage = (K * GetPower()) / GetDistance(); // given formula by pdf
 
         // Send damage to tower
-        //tower->TakeDamage(damage); wait to coorect name from somaya
+        tower->ReceiveDamage(damage); 
 
         UpdateNextActionTime(currentTime);
     }

@@ -39,7 +39,7 @@ REGION Enemy::GetRegion() const
 
 
 
-// getter functions
+//getter functions
 int Enemy::GetDistance() const {
 	return Distance;
 }
@@ -74,11 +74,11 @@ int Enemy::GetReloadPeriod() const {
 enemyState Enemy::GetState() const {
 	return State;
 }
-int Enemy::GetNextActionTime() const {
+int Enemy::GetNextActionTime() const {   //important
 	return (LastActionTime + ReloadPeriod);
 }
 //setter functions 
-void Enemy::SetDistance(int d)
+void Enemy::SetDistance(int d)  // important // max = 60 and min 2 // instructions from pdf ###
 {
 	if (d >= MinDistance && d <= MaxDistance)
 		Distance = d;
@@ -130,7 +130,7 @@ int Enemy::GetKD() const {
 int Enemy::GetLT() const {
 	return (GetFD() + GetKD());
 }
-void Enemy::DecrementDist() //
+void Enemy::DecrementDist() // important // call each time step by move //
 {
 	if (Distance > MinDistance)
 		Distance--;
@@ -141,7 +141,7 @@ void Enemy::Move(int currentTime) {
 		DecrementDist();
 	}
 };
-bool Enemy::CanMove(int currentTime) const {
+bool Enemy::CanMove(int currentTime) const {//importNT // can not move if enemy is frozen 
 	if (IsFrozen(currentTime)) {
 		return false;
 	}
@@ -152,20 +152,20 @@ bool Enemy::CanMove(int currentTime) const {
 
 
 // Health
-void Enemy::TakeDamage(double damage, int currentTime) {
+void Enemy::TakeDamage(double damage, int currentTime) {// immmmportant
 	//called bt attack tower
 	if (!IsKilled()) {
 
 		// Record first hit time only once
-		if (FirstShotTime == -1) {
+		if (FirstShotTime == -1) {  //need for STATISTICS(KD & FD & LT)
 			SetFirstShotTime(currentTime);
 		}
 
 		SetHealth(GetHealth() - damage);
 
 		if (GetHealth() <= 0) {
-			SetHealth(0);
-			SetKilledTime(currentTime);
+			SetHealth(0); //the enemy is die
+			SetKilledTime(currentTime); //need for STATISTICS(KD & LT)
 		}
 	}
 }
@@ -177,30 +177,33 @@ bool Enemy::IsKilled() const {
 		return false;
 	}
 }
-void Enemy::Heal(double amount) {
+void Enemy::Heal(double amount) { // important // call by healer to oncrease health of emeny 
 	if (!IsKilled()) {
 		SetHealth(GetHealth() + amount);
 
-		if (GetHealth() > GetOriginalHealth()) {
+		if (GetHealth() > GetOriginalHealth()) {  // ÚáÔÇä áæ ÇáÒíÇÏå ÎáÊ ÕÍÊå ÇßÈÑ ãä ÇáãÚÊÇÏ æÏÇ ãíäÝÚÔ
 			SetHealth(GetOriginalHealth());
 		}
 	}
 }
 
 // Actions
-bool Enemy::CanAct(int currentTime) const {
+bool Enemy::CanAct(int currentTime) const { // important
+	if (IsFrozen(currentTime)) {
+		return false;
+	}
+
 	if (currentTime >= GetNextActionTime()) {
 		return true;
 	}
-	else {
-		return false;
-	}
+
+	return false;
 }
 void Enemy::UpdateNextActionTime(int currentTime) {
 	LastActionTime = currentTime;
 }
 // Freeze
-void Enemy::Freeze(int duration, int currentTime) {
+void Enemy::Freeze(int duration, int currentTime) {// important // call by freezer to freeze enmey
 	FreezeEndTime = currentTime + duration;
 }
 bool Enemy::IsFrozen(int currentTime) const {
