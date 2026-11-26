@@ -62,6 +62,21 @@ void GUI::PrintMessage(string msg) const	//Prints a message on status bar
 	                                                                      // to be able to write multi-line
 }
 //////////////////////////////////////////////////////////////////////////////////////////
+// Prints one text line per array element inside the status bar
+void GUI::PrintStatusLines(const string lines[], int count) const
+{
+	ClearStatusBar();
+
+	pWind->SetPen(DARKRED);
+	pWind->SetFont(16, BOLD, BY_NAME, "Arial");
+	const int lineHeight = 22;
+	int y = WindHeight - StatusBarHeight + 8;
+	for (int i = 0; i < count; i++)
+	{
+		pWind->DrawString(10, y, lines[i]);
+		y += lineHeight;
+	}
+}
 void GUI::DrawString(const int iX, const int iY, const string Text)
 {
 	pWind->SetPen(DARKRED);

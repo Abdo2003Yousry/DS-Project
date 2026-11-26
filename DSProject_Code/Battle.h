@@ -36,6 +36,7 @@ private:
     // Helper functions
     void MoveArrivedEnemies();
     int GetActiveCount() const;
+    int CountActiveOfType(REGION region, enemyType type) const;
     void KillRandomActiveEnemies(int maximumToKill);
     void RefreshDrawingArray();
     void PrintStatus(GUI* pGUI) const;

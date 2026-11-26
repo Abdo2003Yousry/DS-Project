@@ -4,7 +4,7 @@
 #include "Enemies/Freezer.h"
 #include "FileManager.h"
 #include "GUI/GUI.h"
-
+#include <string>
 #include <iostream>
 #include <cstdlib>   // rand, srand
 #include <ctime>     // time
@@ -75,26 +75,42 @@ void Battle::RefreshDrawingArray()
     }
 }
 
-void Battle::PrintStatus(GUI* pGUI) const
+// number of active enemies of one type inside one region
+int Battle::CountActiveOfType(REGION region, enemyType type) const
 {
-    std::ostringstream status;
-    status << "Step: " << TimeStep;
-    for (int region = A_REG; region <= D_REG; ++region)
-    {
-        status << " | " << static_cast<char>('A' + region)
-            << " HP: " << BCastle.GetTowerHealth(static_cast<REGION>(region));
-    }
-    // Add each region's active and killed counts, as required by Phase 1.
-    for (int region = A_REG; region <= D_REG; ++region)
-    {
-        status << " | " << static_cast<char>('A' + region)
-            << " Active: " << ActiveEnemies[region].getCount()
-            << " Killed: " << KilledCount[region];
-    }
-    status << " | Click to advance";
-    pGUI->PrintMessage(status.str());
+    int total = 0;
+    for (Node<Enemy*>* p = ActiveEnemies[region].getHead(); p != 0; p = p->getNext())
+        if (p->getItem()->GetType() == type)
+            ++total;
+    return total;
 }
 
+// time step, then one line per region:
+// tower health, active enemies (fighters / healers / freezers), killed so far
+void Battle::PrintStatus(GUI* pGUI) const
+{
+    std::string lines[NoOfRegions + 1];
+
+    std::ostringstream header;
+    header << "Time Step: " << TimeStep << "   (click to go to the next step)";
+    lines[0] = header.str();
+
+    for (int region = A_REG; region <= D_REG; ++region)
+    {
+        REGION r = static_cast<REGION>(region);
+        std::ostringstream line;
+        line << "Region " << static_cast<char>('A' + region)
+            << " | Tower Health: " << BCastle.GetTowerHealth(r)
+            << " | Active: " << ActiveEnemies[region].getCount()
+            << " (Fighters: " << CountActiveOfType(r, Fighter_Type)
+            << ", Healers: " << CountActiveOfType(r, Healer_Type)
+            << ", Freezers: " << CountActiveOfType(r, Freezer_Type)
+            << ") | Killed: " << KilledCount[region];
+        lines[region + 1] = line.str();
+    }
+
+    pGUI->PrintStatusLines(lines, NoOfRegions + 1);
+}
 void Battle::RunSimulation()
 {
     std::cout << "===== Castle Battle - Phase 1 =====\n";
